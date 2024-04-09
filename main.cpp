@@ -27,7 +27,7 @@ custom_math::vector_3 grav_acceleration(const custom_math::vector_3 &pos, const 
 
 	float distance = grav_dir.length();
 	grav_dir.normalize();
-	const float x = 2 - sqrt(1 - (vel.length() * vel.length())/(speed_of_light * speed_of_light));
+	const float x = 2 - sqrt(1 - (vel.length() * vel.length()) / (speed_of_light * speed_of_light));
 
 	custom_math::vector_3 accel = grav_dir * x*G*sun_mass / pow(distance, 2.0);
 
@@ -38,7 +38,7 @@ void proceed_Euler(custom_math::vector_3 &pos, custom_math::vector_3 &vel, const
 {
 	custom_math::vector_3 accel = grav_acceleration(pos, vel, G);
 
-	const custom_math::vector_3 grav_dir = sun_pos - photon_pos;
+	const custom_math::vector_3 grav_dir = sun_pos - pos;
 	const float distance = grav_dir.length();
 	const float Rs = 2 * grav_constant * sun_mass / (speed_of_light * speed_of_light);
 	const float beta = sqrt(1.0 - Rs / distance);
@@ -57,20 +57,68 @@ void proceed_Euler(custom_math::vector_3 &pos, custom_math::vector_3 &vel, const
 
 
 
+long double total_time = 0;
+long double total_distance = 0;
+
 void idle_func(void)
 {
 	static const double dt = 1;
 	static const double pi = 4.0 * atan(1.0);
-	proceed_Euler(photon_pos, photon_vel, grav_constant, dt);
 
-	custom_math::vector_3 end = photon_vel;
-	end.normalize();
+	if (photon_pos.x >= 100 * sun_radius)
+	{
+		photon_pos.x = 100 * sun_radius;
+		positions.push_back(photon_pos);
 
-	cout << acos(end.dot(original_vec)) / pi * (180 * 3600) << " arc seconds" << endl;
+		custom_math::vector_3 end = photon_vel;
+		end.normalize();
 
-    positions.push_back(photon_pos);
+		cout << acos(end.dot(original_vec)) / pi * (180 * 3600) << " arc seconds" << endl;
 
-    glutPostRedisplay();
+		long double delta_shapiro_time = -(2 * grav_constant * sun_mass / pow(speed_of_light, 3.0));
+
+		custom_math::vector_3 R, X;
+
+		R = custom_math::vector_3(-100 * sun_radius, sun_radius, 0) - photon_pos;
+		R.normalize();
+
+		X = sun_pos - photon_pos;
+		X.normalize();
+
+		delta_shapiro_time *= log(1.0 - R.dot(X));
+
+		long double total_numeric_distance = 0;
+
+		for (size_t i = 0; i < positions.size() - 1; i++)
+		{
+			const long double f = (positions[i + 1] - positions[i]).length();
+			total_numeric_distance += speed_of_light / f;
+		}
+
+		const long double total_time = total_numeric_distance / speed_of_light;
+		const long double straight_time = (custom_math::vector_3(-100 * sun_radius, sun_radius, 0) - photon_pos).length() / speed_of_light;
+		
+		cout << -(straight_time + delta_shapiro_time) << " " << total_time - straight_time << endl;// (total_time - straight_time) << endl;
+
+		exit(0);
+	}
+	else
+	{
+		total_time += dt;
+		total_distance += speed_of_light;
+
+		proceed_Euler(photon_pos, photon_vel, grav_constant, dt);
+
+		custom_math::vector_3 end = photon_vel;
+		end.normalize();
+
+		//cout << acos(end.dot(original_vec)) / pi * (180 * 3600) << " arc seconds" << endl;
+
+		positions.push_back(photon_pos);
+	}
+
+
+	glutPostRedisplay();
 }
 
 void init_opengl(const int &width, const int &height)
