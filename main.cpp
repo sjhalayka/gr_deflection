@@ -86,15 +86,13 @@ void idle_func(void)
 		for (size_t i = 0; i < positions.size() - 1; i++)
 		{
 			const long double f = (positions[i + 1] - positions[i]).length();
-			total_numeric_distance += speed_of_light / f;
+			total_numeric_distance += f;// speed_of_light / f;
 		}
 
 		const long double total_time = total_numeric_distance / speed_of_light;
 		const long double straight_time = (custom_math::vector_3(-100 * sun_radius, sun_radius, 0) - photon_pos).length() / speed_of_light;
 
-//		cout << delta_shapiro_time << " " << total_time << " " << straight_time << endl;
-
-		cout << (straight_time + delta_shapiro_time) << " " << -(total_time - straight_time) << endl;// (total_time - straight_time) << endl;
+		cout << (straight_time + delta_shapiro_time) << " " << total_time << endl;
 
 		exit(0);
 	}
