@@ -92,6 +92,8 @@ void idle_func(void)
 		const long double total_time = total_numeric_distance / speed_of_light;
 		const long double straight_time = (custom_math::vector_3(-100 * sun_radius, sun_radius, 0) - photon_pos).length() / speed_of_light;
 
+//		cout << delta_shapiro_time << " " << total_time << " " << straight_time << endl;
+
 		cout << (straight_time + delta_shapiro_time) << " " << -(total_time - straight_time) << endl;// (total_time - straight_time) << endl;
 
 		exit(0);
