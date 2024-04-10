@@ -1,7 +1,7 @@
 #include "main.h"
 
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	cout << setprecision(20) << endl;
 
@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-custom_math::vector_3 grav_acceleration(const custom_math::vector_3 &pos, const custom_math::vector_3 &vel, const double G)
+custom_math::vector_3 grav_acceleration(const custom_math::vector_3& pos, const custom_math::vector_3& vel, const double G)
 {
 	custom_math::vector_3 grav_dir = sun_pos - pos;
 
@@ -29,12 +29,12 @@ custom_math::vector_3 grav_acceleration(const custom_math::vector_3 &pos, const 
 	grav_dir.normalize();
 	const float x = 2 - sqrt(1 - (vel.length() * vel.length()) / (speed_of_light * speed_of_light));
 
-	custom_math::vector_3 accel = grav_dir * x*G*sun_mass / pow(distance, 2.0);
+	custom_math::vector_3 accel = grav_dir * x * G * sun_mass / pow(distance, 2.0);
 
 	return accel;
 }
 
-void proceed_Euler(custom_math::vector_3 &pos, custom_math::vector_3 &vel, const double G, const double dt)
+void proceed_Euler(custom_math::vector_3& pos, custom_math::vector_3& vel, const double G, const double dt)
 {
 	custom_math::vector_3 accel = grav_acceleration(pos, vel, G);
 
@@ -55,14 +55,8 @@ void proceed_Euler(custom_math::vector_3 &pos, custom_math::vector_3 &vel, const
 }
 
 
-
-
-long double total_time = 0;
-long double total_distance = 0;
-
 void idle_func(void)
 {
-	static const double dt = 1;
 	static const double pi = 4.0 * atan(1.0);
 
 	if (photon_pos.x >= 100 * sun_radius)
@@ -97,23 +91,14 @@ void idle_func(void)
 
 		const long double total_time = total_numeric_distance / speed_of_light;
 		const long double straight_time = (custom_math::vector_3(-100 * sun_radius, sun_radius, 0) - photon_pos).length() / speed_of_light;
-		
-		cout << (straight_time + delta_shapiro_time) << " " << -( total_time - straight_time) << endl;// (total_time - straight_time) << endl;
+
+		cout << (straight_time + delta_shapiro_time) << " " << -(total_time - straight_time) << endl;// (total_time - straight_time) << endl;
 
 		exit(0);
 	}
 	else
 	{
-		total_time += dt;
-		total_distance += speed_of_light;
-
-		proceed_Euler(photon_pos, photon_vel, grav_constant, dt);
-
-		custom_math::vector_3 end = photon_vel;
-		end.normalize();
-
-		//cout << acos(end.dot(original_vec)) / pi * (180 * 3600) << " arc seconds" << endl;
-
+		proceed_Euler(photon_pos, photon_vel, grav_constant, 1);
 		positions.push_back(photon_pos);
 	}
 
@@ -121,21 +106,21 @@ void idle_func(void)
 	glutPostRedisplay();
 }
 
-void init_opengl(const int &width, const int &height)
+void init_opengl(const int& width, const int& height)
 {
 	win_x = width;
 	win_y = height;
 
-	if(win_x < 1)
+	if (win_x < 1)
 		win_x = 1;
 
-	if(win_y < 1)
+	if (win_y < 1)
 		win_y = 1;
 
-	glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE|GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(win_x, win_y);
-	win_id = glutCreateWindow("orbit");
+	win_id = glutCreateWindow("deflection");
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -155,10 +140,10 @@ void reshape_func(int width, int height)
 	win_x = width;
 	win_y = height;
 
-	if(win_x < 1)
+	if (win_x < 1)
 		win_x = 1;
 
-	if(win_y < 1)
+	if (win_y < 1)
 		win_y = 1;
 
 	glutSetWindow(win_id);
@@ -169,9 +154,9 @@ void reshape_func(int width, int height)
 }
 
 // Text drawing code originally from "GLUT Tutorial -- Bitmap Fonts and Orthogonal Projections" by A R Fernandes
-void render_string(int x, const int y, void *font, const string &text)
+void render_string(int x, const int y, void* font, const string& text)
 {
-	for(size_t i = 0; i < text.length(); i++)
+	for (size_t i = 0; i < text.length(); i++)
 	{
 		glRasterPos2i(x, y);
 		glutBitmapCharacter(font, text[i]);
@@ -182,37 +167,37 @@ void render_string(int x, const int y, void *font, const string &text)
 
 void draw_objects(void)
 {
-    glDisable(GL_LIGHTING);
-    
+	glDisable(GL_LIGHTING);
+
 	glPushMatrix();
-  
+
 
 	glutSolidSphere(sun_radius, 50, 50);
 
 
-    glPointSize(1.0);
-    glLineWidth(1.0f);
+	glPointSize(1.0);
+	glLineWidth(1.0f);
 
-    
-    glBegin(GL_POINTS);
-    glVertex3f(sun_pos.x, sun_pos.y, sun_pos.z);
-    
-    glColor3f(1.0, 1.0, 1.0);
-    
-    for(size_t i = 0; i < positions.size(); i++)
-    glVertex3f(positions[i].x, positions[i].y, positions[i].z);
-    
-    glEnd();
-    
-    
-    
-    
-    
-    glLineWidth(1.0f);
-    
-    
+
+	glBegin(GL_POINTS);
+	glVertex3f(sun_pos.x, sun_pos.y, sun_pos.z);
+
+	glColor3f(1.0, 1.0, 1.0);
+
+	for (size_t i = 0; i < positions.size(); i++)
+		glVertex3f(positions[i].x, positions[i].y, positions[i].z);
+
+	glEnd();
+
+
+
+
+
+	glLineWidth(1.0f);
+
+
 	// If we do draw the axis at all, make sure not to draw its outline.
-	if(true == draw_axis)
+	if (true == draw_axis)
 	{
 		glBegin(GL_LINES);
 
@@ -245,12 +230,12 @@ void draw_objects(void)
 
 void display_func(void)
 {
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Draw the model's components using OpenGL/GLUT primitives.
 	draw_objects();
 
-	if(true == draw_control_list)
+	if (true == draw_control_list)
 	{
 		// Text drawing code originally from "GLUT Tutorial -- Bitmap Fonts and Orthogonal Projections" by A R Fernandes
 		// http://www.lighthouse3d.com/opengl/glut/index.php?bmpfontortho
@@ -271,27 +256,27 @@ void display_func(void)
 		ostringstream oss;
 
 		render_string(10, start, GLUT_BITMAP_HELVETICA_18, string("Mouse controls:"));
-		render_string(10, start + 1*break_size, GLUT_BITMAP_HELVETICA_18, string("  LMB + drag: Rotate camera"));
-		render_string(10, start + 2*break_size, GLUT_BITMAP_HELVETICA_18, string("  RMB + drag: Zoom camera"));
+		render_string(10, start + 1 * break_size, GLUT_BITMAP_HELVETICA_18, string("  LMB + drag: Rotate camera"));
+		render_string(10, start + 2 * break_size, GLUT_BITMAP_HELVETICA_18, string("  RMB + drag: Zoom camera"));
 
-		render_string(10, start + 4*break_size, GLUT_BITMAP_HELVETICA_18, string("Keyboard controls:"));
-        render_string(10, start + 5*break_size, GLUT_BITMAP_HELVETICA_18, string("  w: Draw axis"));
-		render_string(10, start + 6*break_size, GLUT_BITMAP_HELVETICA_18, string("  e: Draw text"));
-		render_string(10, start + 7*break_size, GLUT_BITMAP_HELVETICA_18, string("  u: Rotate camera +u"));
-		render_string(10, start + 8*break_size, GLUT_BITMAP_HELVETICA_18, string("  i: Rotate camera -u"));
-		render_string(10, start + 9*break_size, GLUT_BITMAP_HELVETICA_18, string("  o: Rotate camera +v"));
-		render_string(10, start + 10*break_size, GLUT_BITMAP_HELVETICA_18, string("  p: Rotate camera -v"));
+		render_string(10, start + 4 * break_size, GLUT_BITMAP_HELVETICA_18, string("Keyboard controls:"));
+		render_string(10, start + 5 * break_size, GLUT_BITMAP_HELVETICA_18, string("  w: Draw axis"));
+		render_string(10, start + 6 * break_size, GLUT_BITMAP_HELVETICA_18, string("  e: Draw text"));
+		render_string(10, start + 7 * break_size, GLUT_BITMAP_HELVETICA_18, string("  u: Rotate camera +u"));
+		render_string(10, start + 8 * break_size, GLUT_BITMAP_HELVETICA_18, string("  i: Rotate camera -u"));
+		render_string(10, start + 9 * break_size, GLUT_BITMAP_HELVETICA_18, string("  o: Rotate camera +v"));
+		render_string(10, start + 10 * break_size, GLUT_BITMAP_HELVETICA_18, string("  p: Rotate camera -v"));
 
 
-		
-        custom_math::vector_3 eye = main_camera.eye;
+
+		custom_math::vector_3 eye = main_camera.eye;
 		custom_math::vector_3 eye_norm = eye;
 		eye_norm.normalize();
 
 		oss.clear();
-		oss.str("");		
+		oss.str("");
 		oss << "Camera position: " << eye.x << ' ' << eye.y << ' ' << eye.z;
-		render_string(10, win_y - 2*break_size, GLUT_BITMAP_HELVETICA_18, oss.str());
+		render_string(10, win_y - 2 * break_size, GLUT_BITMAP_HELVETICA_18, oss.str());
 
 		oss.clear();
 		oss.str("");
@@ -310,42 +295,42 @@ void display_func(void)
 
 void keyboard_func(unsigned char key, int x, int y)
 {
-	switch(tolower(key))
+	switch (tolower(key))
 	{
 	case 'w':
-		{
-			draw_axis = !draw_axis;
-			break;
-		}
+	{
+		draw_axis = !draw_axis;
+		break;
+	}
 	case 'e':
-		{
-			draw_control_list = !draw_control_list;
-			break;
-		}
+	{
+		draw_control_list = !draw_control_list;
+		break;
+	}
 	case 'u':
-		{
-			main_camera.u -= u_spacer;
-			main_camera.Set();
-			break;
-		}
+	{
+		main_camera.u -= u_spacer;
+		main_camera.Set();
+		break;
+	}
 	case 'i':
-		{
-			main_camera.u += u_spacer;
-			main_camera.Set();
-			break;
-		}
+	{
+		main_camera.u += u_spacer;
+		main_camera.Set();
+		break;
+	}
 	case 'o':
-		{
-			main_camera.v -= v_spacer;
-			main_camera.Set();
-			break;
-		}
+	{
+		main_camera.v -= v_spacer;
+		main_camera.Set();
+		break;
+	}
 	case 'p':
-		{
-			main_camera.v += v_spacer;
-			main_camera.Set();
-			break;
-		}
+	{
+		main_camera.v += v_spacer;
+		main_camera.Set();
+		break;
+	}
 
 	default:
 		break;
@@ -354,23 +339,23 @@ void keyboard_func(unsigned char key, int x, int y)
 
 void mouse_func(int button, int state, int x, int y)
 {
-	if(GLUT_LEFT_BUTTON == button)
+	if (GLUT_LEFT_BUTTON == button)
 	{
-		if(GLUT_DOWN == state)
+		if (GLUT_DOWN == state)
 			lmb_down = true;
 		else
 			lmb_down = false;
 	}
-	else if(GLUT_MIDDLE_BUTTON == button)
+	else if (GLUT_MIDDLE_BUTTON == button)
 	{
-		if(GLUT_DOWN == state)
+		if (GLUT_DOWN == state)
 			mmb_down = true;
 		else
 			mmb_down = false;
 	}
-	else if(GLUT_RIGHT_BUTTON == button)
+	else if (GLUT_RIGHT_BUTTON == button)
 	{
-		if(GLUT_DOWN == state)
+		if (GLUT_DOWN == state)
 			rmb_down = true;
 		else
 			rmb_down = false;
@@ -388,16 +373,16 @@ void motion_func(int x, int y)
 	int mouse_delta_x = mouse_x - prev_mouse_x;
 	int mouse_delta_y = prev_mouse_y - mouse_y;
 
-	if(true == lmb_down && (0 != mouse_delta_x || 0 != mouse_delta_y))
+	if (true == lmb_down && (0 != mouse_delta_x || 0 != mouse_delta_y))
 	{
-		main_camera.u -= static_cast<float>(mouse_delta_y)*u_spacer;
-		main_camera.v += static_cast<float>(mouse_delta_x)*v_spacer;
+		main_camera.u -= static_cast<float>(mouse_delta_y) * u_spacer;
+		main_camera.v += static_cast<float>(mouse_delta_x) * v_spacer;
 	}
-	else if(true == rmb_down && (0 != mouse_delta_y))
+	else if (true == rmb_down && (0 != mouse_delta_y))
 	{
-		main_camera.w -= static_cast<float>(mouse_delta_y)*w_spacer;
+		main_camera.w -= static_cast<float>(mouse_delta_y) * w_spacer;
 
-		if(main_camera.w < 1.1f)
+		if (main_camera.w < 1.1f)
 			main_camera.w = 1.1f;
 
 	}
@@ -410,7 +395,6 @@ void passive_motion_func(int x, int y)
 	mouse_x = x;
 	mouse_y = y;
 }
-
 
 
 
