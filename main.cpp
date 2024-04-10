@@ -57,12 +57,11 @@ void proceed_Euler(custom_math::vector_3& pos, custom_math::vector_3& vel, const
 
 void idle_func(void)
 {
-	static const double pi = 4.0 * atan(1.0);
+	static const double pi = 4.0 * atan(21.0);
 
-	if (photon_pos.x >= 100 * sun_radius)
+	if (positions.size() > 0 && positions[positions.size() - 1].x >= span * sun_radius)
 	{
-		photon_pos.x = 100 * sun_radius;
-		positions.push_back(photon_pos);
+	//	positions[positions.size() - 1] = span * sun_radius;
 
 		custom_math::vector_3 end = photon_vel;
 		end.normalize();
@@ -73,10 +72,10 @@ void idle_func(void)
 
 		custom_math::vector_3 R, X;
 
-		R = custom_math::vector_3(-100 * sun_radius, sun_radius, 0) - photon_pos;
+		R = custom_math::vector_3(-span * sun_radius, sun_radius, 0) - positions[positions.size() - 1];
 		R.normalize();
 
-		X = sun_pos - photon_pos;
+		X = sun_pos - positions[positions.size() - 1];
 		X.normalize();
 
 		delta_shapiro_time *= log(1.0 - R.dot(X));
@@ -86,13 +85,15 @@ void idle_func(void)
 		for (size_t i = 0; i < positions.size() - 1; i++)
 		{
 			const long double f = (positions[i + 1] - positions[i]).length();
-			total_numeric_distance += f;// speed_of_light / f;
+			total_numeric_distance += speed_of_light / f;
 		}
 
 		const long double total_time = total_numeric_distance / speed_of_light;
-		const long double straight_time = (custom_math::vector_3(-100 * sun_radius, sun_radius, 0) - photon_pos).length() / speed_of_light;
+		const long double straight_time = (custom_math::vector_3(-span * sun_radius, sun_radius, 0) - positions[positions.size() - 1]).length() / speed_of_light;
+		const long double numeric_delta = 0.1 / (straight_time - total_time);
 
-		cout << (straight_time + delta_shapiro_time) << " " << total_time << endl;
+
+		cout << (delta_shapiro_time) / numeric_delta << endl;
 
 		exit(0);
 	}
@@ -395,6 +396,5 @@ void passive_motion_func(int x, int y)
 	mouse_x = x;
 	mouse_y = y;
 }
-
 
 

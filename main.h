@@ -56,8 +56,10 @@ const double sun_mass = 1.989e30;
 const double sun_radius = 696340000;
 
 
+long double span = 200;
+
 custom_math::vector_3 sun_pos(0, 0, 0);
-custom_math::vector_3 photon_pos(-100*sun_radius, sun_radius, 0);
+custom_math::vector_3 photon_pos(-span *sun_radius, sun_radius, 0);
 custom_math::vector_3 photon_vel(speed_of_light, 0, 0);
 
 custom_math::vector_3 original_vec(1, 0, 0);
