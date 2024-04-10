@@ -75,7 +75,7 @@ void idle_func(void)
 
 		cout << acos(end.dot(original_vec)) / pi * (180 * 3600) << " arc seconds" << endl;
 
-		long double delta_shapiro_time = -(2 * grav_constant * sun_mass / pow(speed_of_light, 3.0));
+		long double delta_shapiro_time = -2 * grav_constant * sun_mass / pow(speed_of_light, 3.0);
 
 		custom_math::vector_3 R, X;
 
@@ -98,7 +98,7 @@ void idle_func(void)
 		const long double total_time = total_numeric_distance / speed_of_light;
 		const long double straight_time = (custom_math::vector_3(-100 * sun_radius, sun_radius, 0) - photon_pos).length() / speed_of_light;
 		
-		cout << -(straight_time + delta_shapiro_time) << " " << total_time - straight_time << endl;// (total_time - straight_time) << endl;
+		cout << (straight_time + delta_shapiro_time) << " " << -( total_time - straight_time) << endl;// (total_time - straight_time) << endl;
 
 		exit(0);
 	}
