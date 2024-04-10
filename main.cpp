@@ -57,7 +57,7 @@ void proceed_Euler(custom_math::vector_3& pos, custom_math::vector_3& vel, const
 
 void idle_func(void)
 {
-	static const double pi = 4.0 * atan(21.0);
+	static const double pi = 4.0 * atan(1.0);
 
 	if (positions.size() > 0 && positions[positions.size() - 1].x >= span * sun_radius)
 	{
@@ -90,10 +90,9 @@ void idle_func(void)
 
 		const long double total_time = total_numeric_distance / speed_of_light;
 		const long double straight_time = (custom_math::vector_3(-span * sun_radius, sun_radius, 0) - positions[positions.size() - 1]).length() / speed_of_light;
-		const long double numeric_delta = 0.1 / (straight_time - total_time);
+		const long double numeric_delta_time = (total_time - straight_time);
 
-
-		cout << (delta_shapiro_time) / numeric_delta << endl;
+		cout << delta_shapiro_time / (numeric_delta_time / speed_of_light) << endl;
 
 		exit(0);
 	}
