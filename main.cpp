@@ -21,22 +21,22 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-custom_math::vector_3 grav_acceleration(const custom_math::vector_3& pos, const custom_math::vector_3& vel, const double G)
+custom_math::vector_3 grav_acceleration(const custom_math::vector_3& pos, const custom_math::vector_3& vel, const long double G)
 {
 	custom_math::vector_3 grav_dir = sun_pos - pos;
 
-	float distance = grav_dir.length();
+	long double distance = grav_dir.length();
 	grav_dir.normalize();
-	const float x = 2 - sqrt(1 - (vel.length() * vel.length()) / (speed_of_light * speed_of_light));
+	const long double x = 2 - sqrt(1 - (vel.length() * vel.length()) / (speed_of_light * speed_of_light));
 
 	custom_math::vector_3 accel = grav_dir * x * G * sun_mass / pow(distance, 2.0);
 
 	return accel;
 }
 
-void proceed_Euler(custom_math::vector_3& pos, custom_math::vector_3& vel, const double G, const double dt)
+void proceed_Euler(custom_math::vector_3& pos, custom_math::vector_3& vel, const long double G, const long double dt)
 {
-	custom_math::vector_3 accel = grav_acceleration(pos, vel, G);
+	custom_math::vector_3 accel = 0;// grav_acceleration(pos, vel, G) * 0.5;
 
 	const custom_math::vector_3 grav_dir = sun_pos - pos;
 	const float distance = grav_dir.length();
@@ -55,14 +55,21 @@ void proceed_Euler(custom_math::vector_3& pos, custom_math::vector_3& vel, const
 }
 
 
+
+long double total_time = 0;
+long unsigned int frame_num = 0;
+
+
 void idle_func(void)
 {
-	static const double pi = 4.0 * atan(1.0);
+	frame_num++;
 
-	if (positions.size() > 0 && positions[positions.size() - 1].x >= span * sun_radius)
+	static const long double pi = 4.0 * atan(1.0);
+
+
+
+	if (photon_pos.x >= span * speed_of_light)
 	{
-	//	positions[positions.size() - 1] = span * sun_radius;
-
 		custom_math::vector_3 end = photon_vel;
 		end.normalize();
 
@@ -70,40 +77,44 @@ void idle_func(void)
 
 		long double delta_shapiro_time = -2 * grav_constant * sun_mass / pow(speed_of_light, 3.0);
 
-		custom_math::vector_3 R, X;
-
-		R = custom_math::vector_3(-span * sun_radius, sun_radius, 0) - positions[positions.size() - 1];
+		custom_math::vector_3 R = custom_math::vector_3(-span * speed_of_light, sun_radius, 0) - custom_math::vector_3(span * speed_of_light, sun_radius, 0);
 		R.normalize();
 
-		X = sun_pos - positions[positions.size() - 1];
+		custom_math::vector_3 X = sun_pos - custom_math::vector_3(-span * speed_of_light, sun_radius, 0);
 		X.normalize();
 
 		delta_shapiro_time *= log(1.0 - R.dot(X));
 
-		long double total_numeric_distance = 0;
+		long double straight_time = (custom_math::vector_3(-span * speed_of_light, sun_radius, 0) - custom_math::vector_3(span * speed_of_light, sun_radius, 0)).length() / speed_of_light;
 
-		for (size_t i = 0; i < positions.size() - 1; i++)
-		{
-			const long double f = (positions[i + 1] - positions[i]).length();
-			total_numeric_distance += speed_of_light / f;
-		}
+		long double delta_shapiro_time2 = total_time - straight_time;
 
-		const long double total_time = total_numeric_distance / speed_of_light;
-		const long double straight_time = (custom_math::vector_3(-span * sun_radius, sun_radius, 0) - positions[positions.size() - 1]).length() / speed_of_light;
-		const long double numeric_delta_time = (total_time - straight_time);
+		cout << delta_shapiro_time << " " << delta_shapiro_time/delta_shapiro_time2 << endl;
 
-		cout << delta_shapiro_time / (numeric_delta_time / speed_of_light) << endl;
+
+
 
 		exit(0);
 	}
 	else
 	{
-		proceed_Euler(photon_pos, photon_vel, grav_constant, 1);
-		positions.push_back(photon_pos);
+		static const long double dt = 1 / speed_of_light;
+
+		total_time += dt;
+
+		proceed_Euler(photon_pos, photon_vel, grav_constant, dt);
+
+
+	//	positions.push_back(photon_pos);
 	}
 
+	if (frame_num % 6000000 == 0)
+	{
+		long double dist = (sun_pos - photon_pos).length();
 
-	glutPostRedisplay();
+		cout << dist << endl;
+		glutPostRedisplay();
+	}
 }
 
 void init_opengl(const int& width, const int& height)
@@ -180,12 +191,14 @@ void draw_objects(void)
 
 
 	glBegin(GL_POINTS);
-	glVertex3f(sun_pos.x, sun_pos.y, sun_pos.z);
+//	glVertex3f(sun_pos.x, sun_pos.y, sun_pos.z);
 
-	glColor3f(1.0, 1.0, 1.0);
+	glVertex3f(photon_pos.x, photon_pos.y, photon_pos.z);
 
-	for (size_t i = 0; i < positions.size(); i++)
-		glVertex3f(positions[i].x, positions[i].y, positions[i].z);
+	//glColor3f(1.0, 1.0, 1.0);
+
+	//for (size_t i = 0; i < positions.size(); i++)
+	//	glVertex3f(positions[i].x, positions[i].y, positions[i].z);
 
 	glEnd();
 
@@ -395,5 +408,4 @@ void passive_motion_func(int x, int y)
 	mouse_x = x;
 	mouse_y = y;
 }
-
 

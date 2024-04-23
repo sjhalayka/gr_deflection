@@ -39,27 +39,27 @@ using std::pair;
 
 
 void idle_func(void);
-void init_opengl(const int &width, const int &height);
+void init_opengl(const int& width, const int& height);
 void reshape_func(int width, int height);
 void display_func(void);
 void keyboard_func(unsigned char key, int x, int y);
 void mouse_func(int button, int state, int x, int y);
 void motion_func(int x, int y);
 void passive_motion_func(int x, int y);
-
-void render_string(int x, const int y, void *font, const string &text);
+ 
+void render_string(int x, const int y, void* font, const string& text);
 void draw_objects(void);
 
-const double speed_of_light = 299792458;
-const double grav_constant = 6.673e-11;
-const double sun_mass = 1.989e30;
-const double sun_radius = 696340000;
+const long double speed_of_light = 299792458;
+const long double grav_constant = 6.673e-11;
+const long double sun_mass = 1.989e30;
+const long double sun_radius = 6.9634e8;
 
 
-long double span = 200;
+long double span = 10;
 
 custom_math::vector_3 sun_pos(0, 0, 0);
-custom_math::vector_3 photon_pos(-span *sun_radius, sun_radius, 0);
+custom_math::vector_3 photon_pos(-span * speed_of_light, sun_radius, 0);
 custom_math::vector_3 photon_vel(speed_of_light, 0, 0);
 
 custom_math::vector_3 original_vec(1, 0, 0);
@@ -78,13 +78,13 @@ uv_camera main_camera;
 
 GLint win_id = 0;
 GLint win_x = 800, win_y = 600;
-float camera_w = 1e11;
+float camera_w = 2e11;
 
 float camera_fov = 45;
 float camera_x_transform = 0;
 float camera_y_transform = 0;
 float u_spacer = 0.01;
-float v_spacer = 0.5*u_spacer;
+float v_spacer = 0.5 * u_spacer;
 float w_spacer = 0.1;
 float camera_near = 1;
 float camera_far = 1000000000;
